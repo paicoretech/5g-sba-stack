@@ -1,0 +1,77 @@
+openapi: 3.0.0
+info:
+  title: N21 Nudm_UECM SmsfRegistration (subset)
+  version: 1.0.0
+  description: >
+    Focused subset of 3GPP TS 29.503 Nudm_UECM used by the N21 client.
+    Contains only the SmsfRegistration datatype (and its inline dependencies)
+    required to build the SMSF-to-UDM registration payload for the
+    /nudm-uecm/v1/{ueId}/registrations/smsf-3gpp-access resource.
+    The optional contextInfo property (which pulls TS29503_Nudm_SDM) is
+    intentionally omitted; the remaining $refs resolve against the already
+    present TS29571_CommonData.yaml in this directory.
+paths: {}
+components:
+  schemas:
+
+    SmsfRegistration:
+      description: >
+        This datatype contains SMSF registration for 3GPP access that is created or updated
+        with the received information.
+      type: object
+      required:
+        - smsfInstanceId
+        - plmnId
+      properties:
+        smsfInstanceId:
+          $ref: 'TS29571_CommonData.yaml#/components/schemas/NfInstanceId'
+        smsfSetId:
+          $ref: 'TS29571_CommonData.yaml#/components/schemas/NfSetId'
+        supportedFeatures:
+          $ref: 'TS29571_CommonData.yaml#/components/schemas/SupportedFeatures'
+        plmnId:
+          $ref: 'TS29571_CommonData.yaml#/components/schemas/PlmnId'
+        smsfMAPAddress:
+          $ref: '#/components/schemas/E164Number'
+        smsfDiameterAddress:
+          $ref: '#/components/schemas/NetworkNodeDiameterAddress'
+        registrationTime:
+          $ref: 'TS29571_CommonData.yaml#/components/schemas/DateTime'
+        dataRestorationCallbackUri:
+          $ref: 'TS29571_CommonData.yaml#/components/schemas/Uri'
+        resetIds:
+          type: array
+          items:
+            type: string
+          minItems: 1
+        smsfSbiSupInd:
+          type: boolean
+          default: false
+        udrRestartInd:
+          type: boolean
+          default: false
+        lastSynchronizationTime:
+          $ref: 'TS29571_CommonData.yaml#/components/schemas/DateTime'
+        ueMemoryAvailableInd:
+          type: boolean
+
+    E164Number:
+      description: >
+        This data type mentions International E.164 number of the SMSF; shall be present if
+        the SMSF supports MAP.
+      type: string
+      pattern: '^[0-9]{1,15}$'
+
+    NetworkNodeDiameterAddress:
+      description: >
+        This data type is a part of smsfDiameterAddress and it should be present
+        whenever smsf supports Diameter protocol.
+      type: object
+      required:
+        - name
+        - realm
+      properties:
+        name:
+          $ref: 'TS29571_CommonData.yaml#/components/schemas/DiameterIdentity'
+        realm:
+          $ref: 'TS29571_CommonData.yaml#/components/schemas/DiameterIdentity'

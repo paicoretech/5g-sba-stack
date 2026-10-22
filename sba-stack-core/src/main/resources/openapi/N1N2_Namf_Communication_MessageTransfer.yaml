@@ -1,0 +1,136 @@
+openapi: 3.0.0
+info:
+  title: N1N2 Namf_Communication MessageTransfer (subset)
+  version: 1.0.0
+  description: >
+    Focused subset of 3GPP TS 29.518 Namf_Communication used by the MT client.
+    Contains only the datatypes required to build the N1N2MessageTransfer request
+    for the /namf-comm/v1/ue-contexts/{ueContextId}/n1-n2-messages resource, to
+    read its response, and to receive the N1N2 transfer failure notification.
+
+    Properties tied to PDU sessions, location services and area of validity are
+    intentionally omitted: SMS only carries an N1 message container. The remaining
+    $refs resolve against the already present TS29571_CommonData.yaml in this
+    directory.
+paths: {}
+components:
+  schemas:
+
+    N1N2MessageTransferReqData:
+      description: Data within a N1/N2 message transfer request
+      type: object
+      properties:
+        n1MessageContainer:
+          $ref: '#/components/schemas/N1MessageContainer'
+        supi:
+          $ref: 'TS29571_CommonData.yaml#/components/schemas/Supi'
+        gpsi:
+          $ref: 'TS29571_CommonData.yaml#/components/schemas/Gpsi'
+        ppi:
+          $ref: '#/components/schemas/Ppi'
+        n1n2FailureTxfNotifURI:
+          $ref: 'TS29571_CommonData.yaml#/components/schemas/Uri'
+        supportedFeatures:
+          $ref: 'TS29571_CommonData.yaml#/components/schemas/SupportedFeatures'
+
+    N1MessageContainer:
+      description: N1 Message container
+      type: object
+      required:
+        - n1MessageClass
+        - n1MessageContent
+      properties:
+        n1MessageClass:
+          $ref: '#/components/schemas/N1MessageClass'
+        n1MessageContent:
+          $ref: 'TS29571_CommonData.yaml#/components/schemas/RefToBinaryData'
+        nfId:
+          $ref: 'TS29571_CommonData.yaml#/components/schemas/NfInstanceId'
+        serviceInstanceId:
+          type: string
+
+    N1MessageClass:
+      description: Enumeration for N1 Message Class
+      anyOf:
+        - type: string
+          enum:
+            - 5GMM
+            - SM
+            - LPP
+            - SMS
+            - UPDP
+            - LCS
+            - UPP-CM
+        - type: string
+
+    Ppi:
+      description: Paging Policy Indicator
+      type: integer
+      minimum: 1
+      maximum: 8
+
+    N1N2MessageTransferRspData:
+      description: Data within a successful response to a N1N2 Message Transfer request
+      type: object
+      required:
+        - cause
+      properties:
+        cause:
+          $ref: '#/components/schemas/N1N2MessageTransferCause'
+        supportedFeatures:
+          $ref: 'TS29571_CommonData.yaml#/components/schemas/SupportedFeatures'
+
+    N1N2MessageTransferError:
+      description: Data within a N1/N2 Message Transfer Error response
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          $ref: 'TS29571_CommonData.yaml#/components/schemas/ProblemDetails'
+        errInfo:
+          $ref: '#/components/schemas/N1N2MsgTxfrErrDetail'
+
+    N1N2MsgTxfrErrDetail:
+      description: N1/N2 Message Transfer Error Details
+      type: object
+      properties:
+        retryAfter:
+          $ref: 'TS29571_CommonData.yaml#/components/schemas/Uinteger'
+        maxWaitingTime:
+          $ref: 'TS29571_CommonData.yaml#/components/schemas/DurationSec'
+
+    N1N2MsgTxfrFailureNotification:
+      description: Data within a N1/N2 Message Transfer Failure Notification request
+      type: object
+      required:
+        - cause
+        - n1n2MsgDataUri
+      properties:
+        cause:
+          $ref: '#/components/schemas/N1N2MessageTransferCause'
+        n1n2MsgDataUri:
+          $ref: 'TS29571_CommonData.yaml#/components/schemas/Uri'
+        retryAfter:
+          $ref: 'TS29571_CommonData.yaml#/components/schemas/Uinteger'
+        maxWaitingTime:
+          $ref: 'TS29571_CommonData.yaml#/components/schemas/DurationSec'
+
+    N1N2MessageTransferCause:
+      description: Enumeration for N1N2Message Transfer Cause
+      anyOf:
+        - type: string
+          enum:
+            - ATTEMPTING_TO_REACH_UE
+            - N1_N2_TRANSFER_INITIATED
+            - WAITING_FOR_ASYNCHRONOUS_TRANSFER
+            - UE_NOT_RESPONDING
+            - N1_MSG_NOT_TRANSFERRED
+            - N2_MSG_NOT_TRANSFERRED
+            - UE_NOT_REACHABLE_FOR_SESSION
+            - TEMPORARY_REJECT_REGISTRATION_ONGOING
+            - TEMPORARY_REJECT_HANDOVER_ONGOING
+            - REJECTION_DUE_TO_PAGING_RESTRICTION
+            - AN_NOT_RESPONDING
+            - FAILURE_CAUSE_UNSPECIFIED
+        - type: string
